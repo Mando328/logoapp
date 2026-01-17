@@ -1,32 +1,59 @@
-import sqlite3
-import os
+from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey, Text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+import datetime
 
-DB_PATH = 'diagnostyka.db'
+# 1. Tworzymy bazę i silnik
+engine = create_engine("sqlite:///logopedia.db", echo=False)  # echo=True pokazuje SQL w konsoli
+Base = declarative_base()
 
+# 2. Model dziecka
+class Child(Base):
+    __tablename__ = "children"
+    id = Column(Integer, primary_key=True)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    birth_date = Column(Date, nullable=False)
+    gender = Column(String, nullable=True)
+    notes = Column(Text, nullable=True)
+
+    examinations = relationship("Examination", back_populates="child")
+
+# 3. Model badania
+class Examination(Base):
+    __tablename__ = "examinations"
+    id = Column(Integer, primary_key=True)
+    child_id = Column(Integer, ForeignKey("children.id"))
+    date = Column(Date, default=datetime.date.today)
+    exam_type = Column(String, nullable=True)
+    conclusions = Column(Text, nullable=True)
+
+    child = relationship("Child", back_populates="examinations")
+    answers = relationship("Answer", back_populates="examination")
+
+# 4. Model odpowiedzi
+class Answer(Base):
+    __tablename__ = "answers"
+    id = Column(Integer, primary_key=True)
+    examination_id = Column(Integer, ForeignKey("examinations.id"))
+    question_id = Column(String, nullable=False)  # np. "r_articulation"
+    answer_value = Column(String, nullable=False)
+
+    examination = relationship("Examination", back_populates="answers")
+
+# 5. Tworzymy tabele w bazie
+Base.metadata.create_all(engine)
+
+# 6. Tworzymy sesję do pracy z bazą
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# Functions for main.py compatibility
 def connect_to_db():
-    """Connect to SQLite database"""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # Return results as dictionaries
-    return conn
+    """Create and return a database connection"""
+    import sqlite3
+    return sqlite3.connect("logopedia.db")
 
 def init_db():
-    """Initialize the database and create tables"""
-    conn = connect_to_db()
-    cursor = conn.cursor()
-    
-    # Create users table (example)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    conn.commit()
-    conn.close()
-    print("Database initialized successfully!")
-
-if __name__ == "__main__":
-    init_db()
+    """Initialize the database by creating all tables"""
+    Base.metadata.create_all(engine)
