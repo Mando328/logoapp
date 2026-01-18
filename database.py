@@ -19,6 +19,12 @@ class Child(Base):
 
     examinations = relationship("Examination", back_populates="child")
 
+    def __repr__(self):
+        return (
+            f"<Child id={self.id} name={self.first_name} {self.last_name} "
+            f"birth_date={self.birth_date} gender={self.gender}>"
+        )
+
 # 3. Model badania
 class Examination(Base):
     __tablename__ = "examinations"
@@ -57,3 +63,21 @@ def connect_to_db():
 def init_db():
     """Initialize the database by creating all tables"""
     Base.metadata.create_all(engine)
+
+def get_all_children(session):
+    """
+    Zwraca listę wszystkich dzieci z bazy danych
+    """
+    return session.query(Child).all()
+
+children = get_all_children(session)
+if __name__ == "__main__":
+    if not children:
+        print("Brak dzieci w bazie.")
+    else:
+        print("Lista dzieci:")
+        for child in children:
+            print(
+                f"{child.id} - {child.first_name} {child.last_name} "
+                f"{child.birth_date} Płeć: {child.gender} Notatki: {child.notes}"
+            )

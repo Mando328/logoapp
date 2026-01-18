@@ -1,16 +1,16 @@
-from datetime import date
 import sys
 from PySide6.QtWidgets import QApplication
 from UI.UI import MainWindow
-from database import Child, session
 from UI.style import apply_app_style
 
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
-    # Apply global stylesheet so UI looks consistent when launched via main.py
     apply_app_style(app)
     window = MainWindow()
     window.show()
     app.exec()
 
+
+if __name__ == "__main__":
+    main()
