@@ -48,7 +48,7 @@ python run.py
 
 - Database is local, not in Git
 - Uses PySide6 + SQLite + SQLAlchemy
-- Docs in Polish: DOCS_PL.md
+- Docs are in DOCUMENTATION
 
 ---
 
