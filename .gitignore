@@ -1,0 +1,25 @@
+# Python caches
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+
+# SQLite databases (do not commit local data)
+logopedia.db
+logopedia.db-wal
+logopedia.db-shm
+*.sqlite
+*.db
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Project local docs (do not publish)
+DOCS_PL.md
